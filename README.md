@@ -1,5 +1,7 @@
 # enter-cli Skill
 
+[![Supported by enter.pro](https://img.shields.io/badge/Build%20with-Enter.pro-FC5776?style=for-the-badge&labelColor=1F1F1F)](https://enter.pro)
+
 > Build and ship full-stack web apps with AI — powered by [enter.pro](https://enter.pro)
 
 This skill teaches any AI agent how to operate **[enter.pro](https://enter.pro)** — an AI-native platform where you describe what you want to build and an agent writes, deploys, and publishes the entire app for you.
