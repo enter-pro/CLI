@@ -1,6 +1,6 @@
 # enter-cli Skill
 
-A [Claude Code skill](https://agentskills.io) for operating [enter.pro](https://enter.pro) via the `enter-cli` command-line tool.
+A skill for operating [enter.pro](https://enter.pro) via the `enter-cli` command-line tool.
 
 Load this skill when you want to create, build, publish, or manage Enter projects using an AI agent.
 
@@ -33,20 +33,9 @@ references/
   workflows.md            # End-to-end operator workflows
 ```
 
-## Usage in Claude Code
+## Usage
 
-Install via [agentskills.io](https://agentskills.io) or copy the skill directory into your Claude Code skills folder:
-
-```bash
-# macOS / Linux
-cp -r . ~/.claude/skills/enter
-```
-
-Then load it in a session:
-
-```
-/enter
-```
+Install via [agentskills.io](https://agentskills.io) or copy the skill directory into your agent's skills folder.
 
 ## Key Workflows
 
