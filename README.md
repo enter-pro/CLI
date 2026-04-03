@@ -38,7 +38,44 @@ Gives your agent full control over enter.pro via `enter-cli`:
 
 ---
 
-## Install
+## Quick Start (AI Agent)
+
+> The following steps are for AI Agents. Step 2 requires the user to complete login in a browser.
+
+**Step 1 — Install enter-cli**
+
+```bash
+npm install -g @kntech/enter-cli
+```
+
+**Step 2 — Login**
+
+> Run this command, then extract the authorization URL and send it to the user. The command completes automatically after the user finishes in the browser.
+
+```bash
+enter-cli login
+```
+
+**Step 3 — Install this skill**
+
+```bash
+# Claude Code
+git clone https://github.com/enter-pro/CLI ~/.claude/skills/enter
+
+# Other agents: copy SKILL.md into your agent's system prompt or rules file
+```
+
+**Step 4 — Verify**
+
+```bash
+enter-cli whoami
+```
+
+Once verified, your agent can: create and deploy full-stack web apps, iterate via chat, publish to production, manage integrations (Supabase, Stripe, MCP), edit source files, and handle the full project lifecycle — all from natural language.
+
+---
+
+## Install (Human)
 
 ```bash
 npm install -g @kntech/enter-cli
@@ -52,7 +89,7 @@ enter-cli whoami       # verify auth
 
 ### Claude Code
 ```bash
-cp -r . ~/.claude/skills/enter
+git clone https://github.com/enter-pro/CLI ~/.claude/skills/enter
 ```
 
 ### Cursor / Windsurf / Cline / Continue
