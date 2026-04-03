@@ -1,87 +1,141 @@
 # enter-cli Skill
 
-A skill for operating [enter.pro](https://enter.pro) via the `enter-cli` command-line tool.
+> Build and ship full-stack web apps with AI — powered by [enter.pro](https://enter.pro)
 
-Load this skill when you want to create, build, publish, or manage Enter projects using an AI agent.
+This skill teaches any AI agent how to operate **[enter.pro](https://enter.pro)** — an AI-native platform where you describe what you want to build and an agent writes, deploys, and publishes the entire app for you.
 
-## What This Skill Covers
+Works with any agent that supports skills: [Claude Code](https://claude.ai/code), [Cursor](https://cursor.com), [Windsurf](https://codeium.com/windsurf), [Cline](https://github.com/cline/cline), [Continue](https://continue.dev), [Aider](https://aider.chat), and more.
 
-- Create and manage workspaces and projects
-- Send chat messages to trigger AI builds, with real-time stream following
-- Handle all build gate types (Supabase, Stripe, AI capability, user questions, plan mode)
-- Publish projects and get shareable URLs
-- Inspect thread turns, messages, and per-turn diffs
-- Manage project MCP servers, AI model selection, and project-level skills
-- Directly edit source files in the sandbox
-- List and manage agent skills
-- Manage workspace members and custom domains
+---
+
+## What is enter.pro?
+
+**[enter.pro](https://enter.pro)** is a platform that lets AI agents build complete web applications — frontend, backend, database, auth, payments, and deployment — all from a single chat prompt.
+
+- **No manual setup** — AI handles the entire stack
+- **Real deployments** — apps are live on a real URL, not just a preview
+- **Integrations built-in** — Supabase, Stripe, custom domains, MCP servers
+- **Multiplayer** — team workspaces, shared projects, role-based access
+
+---
+
+## What This Skill Does
+
+Gives your agent full control over enter.pro via `enter-cli`:
+
+| Capability | Commands |
+|-----------|----------|
+| Build & iterate | `thread chat`, `thread messages --follow` |
+| Handle build gates | `thread actions --pending`, `thread approve` |
+| Publish & share | `proj publish --wait`, `proj urls` |
+| Edit code directly | `proj edit-file`, `proj run-script` |
+| Manage integrations | `proj mcp`, `proj model`, `proj skills` |
+| Workspaces & teams | `ws members`, `ws credits` |
+| Custom domains | `domain add`, `domain refresh` |
+| Agent skills | `skill install`, `skill list` |
+
+---
 
 ## Install
 
 ```bash
 npm install -g @kntech/enter-cli
-enter-cli login
+enter-cli login        # OAuth — opens browser
+enter-cli whoami       # verify auth
 ```
 
-## Skill Structure
+---
 
-```
-SKILL.md                  # Main skill file — load this in Claude Code
-references/
-  verified-cli.md         # Full --help reference for all commands
-  known-quirks.md         # Known issues and how to handle them
-  workflows.md            # End-to-end operator workflows
-```
+## Add to Your Agent
 
-## Usage
-
-Install via [agentskills.io](https://agentskills.io) or copy the skill directory into your agent's skills folder.
-
-## Key Workflows
-
-### Create a project and wait for build
+### Claude Code
 ```bash
+cp -r . ~/.claude/skills/enter
+```
+
+### Cursor / Windsurf / Cline / Continue
+Copy the `SKILL.md` content into your agent's system prompt or rules file, or follow your agent's skill/rule import instructions.
+
+### agentskills.io
+Available at [agentskills.io](https://agentskills.io) — search for `enter`.
+
+---
+
+## Quick Start
+
+```bash
+# 1. Get your workspace
 WS_ID=$(enter-cli ws list -o json | jq -r '.[0].id')
-PROJ=$(enter-cli proj create $WS_ID --name "My App" --prompt "Build a todo app" --wait -o json)
+
+# 2. Create a project and wait for the first build
+PROJ=$(enter-cli proj create $WS_ID --name "My App" --prompt "Build a SaaS landing page with waitlist" --wait -o json)
 PROJ_ID=$(echo $PROJ | jq -r '.project_id')
+
+# 3. Get the shareable URL
 enter-cli proj urls $PROJ_ID -o json | jq -r '.recommended_share_url'
+
+# 4. Iterate
+enter-cli thread chat $PROJ_ID -m "Add dark mode and a pricing section"
+enter-cli thread messages $PROJ_ID --follow
+
+# 5. Publish
+enter-cli proj publish $PROJ_ID --wait
 ```
 
-### Send a long message (avoids shell escaping issues)
-```bash
-cat > /tmp/msg.txt << 'EOF'
-Build a multiplayer game with the following features...
-EOF
-enter-cli thread chat $PROJ_ID --file /tmp/msg.txt
-```
+---
 
-### Handle a build gate
+## Handling Build Gates
+
+Some features require approval before the agent proceeds (Supabase setup, Stripe keys, user questions). Use:
+
 ```bash
-# Check for pending gates
 enter-cli thread actions $PROJ_ID --pending -o json
 
-# Approve by type
-enter-cli thread approve $PROJ_ID <action_id>                                          # supabase_enable / confirm_skill / etc.
-enter-cli thread approve $PROJ_ID <action_id> --secret-name DB_URL --secret-value "…" # supabase_add_secret
-enter-cli thread approve $PROJ_ID <action_id> --skip-answers                           # ask_user_question
-```
+# Approve by type:
+enter-cli thread approve $PROJ_ID <action_id>                                                    # supabase_enable, confirm_skill, etc.
+enter-cli thread approve $PROJ_ID <action_id> --secret-name DB_URL --secret-value "postgres://…" # supabase_add_secret
+enter-cli thread approve $PROJ_ID <action_id> --secret-name STRIPE_SECRET_KEY --secret-value "sk_…" # stripe_enable
+enter-cli thread approve $PROJ_ID <action_id> --skip-answers                                    # ask_user_question
 
-### Unblock plan mode
-```bash
+# Unblock plan mode
 enter-cli proj plan-mode $PROJ_ID disable
 ```
 
-## All Commands
+---
 
-See [references/verified-cli.md](references/verified-cli.md) for the full command reference.
+## Long Messages
 
-| Group | Commands |
-|-------|----------|
-| `ws` | list, get, create, delete, members (add/remove/update-role/leave), credits |
-| `proj` | list, get, create, rename, delete, publish, publish-status, urls, remix, visibility, plan-mode, source-code, read-file, edit-file, env-vars, run-script, model, download, mcp, skills |
-| `thread` | chat, messages, turns, diff, cancel, tasks, task-delete, task-promote, restore, actions, approve, reject |
-| `domain` | list, add, remove, refresh, update |
-| `skill` | list, search, get, delete, visibility, install, uninstall, agents |
+For long prompts with special characters, write to a file first:
+
+```bash
+cat > /tmp/prompt.txt << 'EOF'
+Build a multiplayer drawing game with:
+- PeerJS for real-time sync
+- 200+ word bank in Chinese
+...
+EOF
+enter-cli thread chat $PROJ_ID --file /tmp/prompt.txt
+```
+
+---
+
+## Full Command Reference
+
+See [references/verified-cli.md](references/verified-cli.md) for the complete command reference with all flags.
+
+See [references/workflows.md](references/workflows.md) for end-to-end workflow examples.
+
+See [references/known-quirks.md](references/known-quirks.md) for known issues and how to handle them.
+
+---
+
+## Links
+
+- **Platform**: [enter.pro](https://enter.pro)
+- **CLI package**: [@kntech/enter-cli](https://www.npmjs.com/package/@kntech/enter-cli)
+- **Skill registry**: [agentskills.io](https://agentskills.io)
+
+---
 
 ## License
 
