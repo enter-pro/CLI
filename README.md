@@ -4,7 +4,7 @@
 
 This skill teaches any AI agent how to operate **[enter.pro](https://enter.pro)** — an AI-native platform where you describe what you want to build and an agent writes, deploys, and publishes the entire app for you.
 
-Works with any agent that supports skills: [Claude Code](https://claude.ai/code), [Cursor](https://cursor.com), [Windsurf](https://codeium.com/windsurf), [Cline](https://github.com/cline/cline), [Continue](https://continue.dev), [Aider](https://aider.chat), and more.
+Works with any agent that supports skills: [OpenClaw](https://openclaw.ai), [Claude](https://claude.ai/code), [Cursor](https://cursor.com), [Windsurf](https://codeium.com/windsurf), [Cline](https://github.com/cline/cline), [Continue](https://continue.dev), [Aider](https://aider.chat), and more.
 
 ---
 
