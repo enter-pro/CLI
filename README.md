@@ -29,7 +29,7 @@ Gives your agent full control over enter.pro via `enter-cli`:
 |-----------|----------|
 | Build & iterate | `thread chat`, `thread messages --follow` |
 | Handle build gates | `thread actions --pending`, `thread approve` |
-| Publish & share | `proj publish --wait`, `proj urls` |
+| Publish & share | `proj publish`, `proj urls` |
 | Edit code directly | `proj edit-file`, `proj run-script` |
 | Manage integrations | `proj mcp`, `proj model`, `proj skills` |
 | Workspaces & teams | `ws members`, `ws credits` |
@@ -118,7 +118,7 @@ enter-cli thread chat $PROJ_ID -m "Add dark mode and a pricing section"
 enter-cli thread messages $PROJ_ID --follow
 
 # 5. Publish
-enter-cli proj publish $PROJ_ID --wait
+enter-cli proj publish $PROJ_ID
 ```
 
 ---
@@ -135,9 +135,6 @@ enter-cli thread approve $PROJ_ID <action_id>                                   
 enter-cli thread approve $PROJ_ID <action_id> --secret-name DB_URL --secret-value "postgres://…" # supabase_add_secret
 enter-cli thread approve $PROJ_ID <action_id> --secret-name STRIPE_SECRET_KEY --secret-value "sk_…" # stripe_enable
 enter-cli thread approve $PROJ_ID <action_id> --skip-answers                                    # ask_user_question
-
-# Unblock plan mode
-enter-cli proj plan-mode $PROJ_ID disable
 ```
 
 ---
@@ -160,11 +157,11 @@ enter-cli thread chat $PROJ_ID --file /tmp/prompt.txt
 
 ## Full Command Reference
 
-See [references/verified-cli.md](references/verified-cli.md) for the complete command reference with all flags.
+For the full list of commands and flags, run `enter-cli <cmd> --help`.
 
-See [references/workflows.md](references/workflows.md) for end-to-end workflow examples.
+See [references/shapes.md](references/shapes.md) for verified JSON output shapes.
 
-See [references/known-quirks.md](references/known-quirks.md) for known issues and how to handle them.
+See [references/quirks.md](references/quirks.md) for known issues and how to handle them.
 
 ---
 

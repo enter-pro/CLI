@@ -11,67 +11,70 @@ metadata:
     - method: npm
       command: npm install -g @kntech/enter-cli
   bin: enter-cli
-  version: "0.1.3 verified locally on 2026-04-01"
 ---
 
 # Enter Skill
 
-Use `enter-cli` first. Treat the CLI as the primary interface, but do not assume
-its help text is fully accurate: some commands drift from backend behavior.
+Use `enter-cli` to operate [enter.pro](https://enter.pro) — an AI-native platform where agents build, deploy, and publish full-stack web apps from natural language.
 
 ## First Checks
-
-Run these before doing real work:
 
 ```bash
 enter-cli whoami -o json
 enter-cli ws list -o json
-enter-cli --help
 ```
 
 Do not continue until `whoami` succeeds.
 
-## High-Confidence Capabilities
+## Typical Workflow
 
-- Inspect workspaces and projects
-- Read project details, including `preview_url`, `publish_url`, and `lifecycle_status`
-- Create projects with `--name`, `--prompt`, and `--wait` (blocks until first build done)
-- Send build instructions through project threads
-- Inspect thread turns (`--wait`, `--latest`), messages (`--latest`, `--tail`, `--turn`, `--follow`), and per-turn diffs (`--out`)
-- Trigger project publish with `--wait` polling
-- Inspect project domains, visibility, and source code
-- Remix projects
-- Disable/re-enable plan mode when a project is stuck
-- List, approve, and reject gate actions (Supabase, Stripe, AI capability, user questions)
-- Manage workspace members (add, remove, update-role, leave)
-- Refresh and update custom domains
-- List, search, and inspect skills; install/uninstall skills to agents; manage skill visibility
-- Directly edit project source files (`proj edit-file`)
-- List sandbox env vars, run scripts in sandbox
-- Manage project MCP servers (add, list, update, delete)
-- Switch AI model for a project (`proj model`)
-- Manage project-level skills (list, enable/disable)
-- Delete and promote thread tasks
+```bash
+# 1. Create
+enter-cli proj create <workspace_id> --prompt "Build me a ..." -o json   # → project_id
 
-## Use This Skill Like This
+# 2. Wait for the turn (always after create / chat)
+enter-cli thread wait <project_id> -o json
+#   completed → continue
+#   blocked   → run the returned approve_command, then wait again
+#   failed    → surface the error to the user
 
-1. Start with the health checks above.
-2. Prefer `-o json` for any command whose output you will inspect or parse.
-3. Use verified output shapes from [verified-cli.md](./references/verified-cli.md).
-4. Before trusting a command, check [known-quirks.md](./references/known-quirks.md) for drift, plan gates, and fallback rules.
-5. For end-to-end task patterns, use [workflows.md](./references/workflows.md).
+# 3. Iterate
+enter-cli thread chat <project_id> -m "Add a login page"
+#   long / quoted / multi-line message → write to a file first:
+#   enter-cli thread chat <project_id> --file /tmp/msg.txt
+# then thread wait again
+
+# 4. Inspect
+enter-cli proj get <project_id> -o json
+enter-cli thread turns <project_id> -o json
+enter-cli thread diff <project_id> <turn_number> -o json
+
+# 5. Publish (synchronous; trust the exit code)
+enter-cli proj publish <project_id>
+
+# 6. Share / source
+enter-cli proj urls <project_id> -o json
+enter-cli proj download <project_id> --out /tmp/src.zip
+#   VIP_REQUIRED → fall back to:
+#   enter-cli proj source-code <project_id> -o json
+```
+
+When `thread wait` returns `blocked`, dispatch by `input_kind`: `none` runs the command as-is; `secret` asks the user for the value first; `questions` reads the prompt from `thread messages` and replies with `--answers '<json>'`.
+
+## Discovering Commands
+
+For command lists, flags, and usage, run `enter-cli <cmd> --help` directly. Top-level groups: `login`, `logout`, `whoami`, `config`, `workspace|ws`, `project|proj`, `thread`, `domain`. This skill does **not** restate `--help` output — it captures only what `--help` cannot tell you.
 
 ## Decision Rules
 
 - Prefer `publish_url` over `preview_url` when both exist.
 - If only `preview_url` exists, label it clearly as preview.
-- `visibility public` is not the same thing as production publish.
-- After `proj publish`, confirm success via `proj get` and a production URL reachability check instead of trusting the CLI call to return quickly.
+- `visibility public` is not the same as production publish.
+- `proj publish` is synchronous (precheck + poll + URL probe). It exits non-zero on failure; trust its exit code.
 - If `proj download` is blocked by plan limits, export `thread diff` JSON instead of pretending the source was downloaded.
-- If CLI help and backend behavior disagree, use a direct authenticated API fallback only after confirming `enter-cli whoami` works.
+- If CLI help and backend behavior disagree, check [Quirks](references/quirks.md) first.
 
-## Read Next
+## References
 
-- [verified-cli.md](./references/verified-cli.md) for verified commands and output shapes
-- [known-quirks.md](./references/known-quirks.md) for drift and failure modes
-- [workflows.md](./references/workflows.md) for safer operator workflows
+- [references/shapes.md](references/shapes.md) — index of verified JSON output shapes by command group (auth, workspace, project, thread, domain, mcp-skills). Read the relevant sub-file before parsing JSON.
+- [references/quirks.md](references/quirks.md) — failure modes, async timing, gate-approval flag matrix, plan-gate fallbacks.
