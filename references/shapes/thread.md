@@ -251,11 +251,38 @@ Add `--pending` to filter to actions still waiting for response. Action object (
 Tool-specific flags (used when the pending action's `tool_name` requires input):
 - `supabase_add_secret` / `stripe_enable`: `--secret-name <name> --secret-value <value>`
 - `ask_user_question`: `--answers '<json>'` or `--skip-answers`
-- All others (`supabase_enable`, `stripe_create_products_and_prices`, `enable_ai_capability`, `confirm_skill`, `confirm_plan_mode`): no flags needed.
+- All others (`stripe_create_products_and_prices`, `enable_ai_capability`, `confirm_skill`, `confirm_plan_mode`): no flags needed.
+
+Default approve (most tools — posts to `/thread/chat` with `action_response`):
 
 ```json
 { "approved": true, "action_id": "<uuid>", "turn": 5 }
 ```
+
+`supabase_enable` uses a dedicated endpoint (`/entercloud/enable`) instead of `/thread/chat`. Same `enter-cli thread approve <pid> <aid>` invocation, but the response surfaces the supabase binding info and the server auto-advances the turn:
+
+```json
+{
+  "approved": true,
+  "action_id": "<uuid>",
+  "tool_name": "supabase_enable",
+  "response": {
+    "binding": { "id": 7134, "instance_id": 7134, "project_id": "...", "setup_completed": true },
+    "instance": {
+      "id": 7134,
+      "workspace_id": 10000012246,
+      "cloud_ref": "spb-...",
+      "provider": "aliyun_supabase",
+      "status": "active",
+      "api_url": "spb-....supabase.opentrust.net",
+      "anon_key": "eyJ..."
+    },
+    "is_new_instance": true
+  }
+}
+```
+
+Agents don't need to know about the dispatch — calling `enter-cli thread approve` works the same way for every tool.
 
 Idempotent no-op (exit 0) when nothing is pending:
 
