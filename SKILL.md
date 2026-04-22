@@ -49,10 +49,22 @@ enter-cli proj get <project_id> -o json
 enter-cli thread turns <project_id> -o json
 enter-cli thread diff <project_id> <turn_number> -o json
 
-# 5. Publish (synchronous; trust the exit code)
+# 5. Verify (after every completed turn)
+enter-cli proj urls <project_id> -o json
+#   Pre-publish: use preview_url. Two forms exist:
+#     - <project_id>-latest.preview.enter.pro       → always points at the latest turn
+#     - <project_id>-turn<N>.preview.enter.pro      → pinned to a specific turn (preferred — avoids cache/race)
+#   Post-publish: prefer publish_url; fall back to preview_url.
+#   Fetch the page and check for direct runtime errors:
+#     - non-2xx HTTP status
+#     - server error pages (500 / framework error overlays)
+#     - blank body, or JS bundle that throws on load
+#   If errors found → report via `thread chat` and re-run `thread wait`.
+
+# 6. Publish (synchronous; trust the exit code)
 enter-cli proj publish <project_id>
 
-# 6. Share / source
+# 7. Share / source
 enter-cli proj urls <project_id> -o json
 enter-cli proj download <project_id> --out /tmp/src.zip
 #   VIP_REQUIRED → fall back to:
@@ -67,6 +79,7 @@ For command lists, flags, and usage, run `enter-cli <cmd> --help` directly. Top-
 
 ## Decision Rules
 
+- Always verify the relevant URL after each turn — pre-publish via `preview_url` (prefer `-turn<N>` over `-latest`), post-publish via `publish_url`.
 - Prefer `publish_url` over `preview_url` when both exist.
 - If only `preview_url` exists, label it clearly as preview.
 - `visibility public` is not the same as production publish.
