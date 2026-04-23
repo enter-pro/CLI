@@ -17,6 +17,11 @@ metadata:
 
 Use `enter-cli` to operate [enter.pro](https://enter.pro) — an AI-native platform where agents build, deploy, and publish full-stack web apps from natural language.
 
+## Before You Run Anything
+
+- Run `enter-cli <cmd> --help` before invoking any command to confirm flags and arguments.
+- Read [references/quirks.md](references/quirks.md) first.
+
 ## First Checks
 
 ```bash
@@ -30,7 +35,8 @@ Do not continue until `whoami` succeeds.
 
 ```bash
 # 1. Create
-enter-cli proj create <workspace_id> --prompt "Build me a ..." -o json   # → project_id
+enter-cli proj create <workspace_id> --name "<project_name>" --prompt "Build me a ..." -o json   # → project_id
+#   --name is required by the backend even though --help marks it optional.
 
 # 2. Wait for the turn (always after create / chat)
 enter-cli thread wait <project_id> -o json
