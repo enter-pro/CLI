@@ -34,9 +34,22 @@ Do not continue until `whoami` succeeds.
 ## Typical Workflow
 
 ```bash
+# 0. (Optional) Discover available models
+enter-cli models list -o json   # → [{id, name, is_default, is_newest, ...}]
+
 # 1. Create
-enter-cli proj create <workspace_id> --name "<project_name>" --prompt "Build me a ..." -o json   # → project_id
-#   --name is required by the backend even though --help marks it optional.
+enter-cli proj create <workspace_id> \
+  --name "<project_name>" \
+  --prompt "Build me a ..." \
+  --plan-mode \
+  [--model <id>] \
+  -o json   # → project_id
+#   --name      required by the backend even though --help marks it optional.
+#   --plan-mode RECOMMENDED. Starts in Plan Mode so the first turn produces a
+#               plan you can review before any code is written. Skip only when
+#               the request is trivially one-shot.
+#   --model     pin AI model. Discover IDs via `enter-cli models list`.
+#               Invalid IDs are silently coerced to "auto" by the server.
 
 # 2. Wait for the turn (always after create / chat)
 enter-cli thread wait <project_id> -o json
@@ -81,10 +94,11 @@ When `thread wait` returns `blocked`, dispatch by `input_kind`: `none` runs the 
 
 ## Discovering Commands
 
-For command lists, flags, and usage, run `enter-cli <cmd> --help` directly. Top-level groups: `login`, `logout`, `whoami`, `config`, `workspace|ws`, `project|proj`, `thread`, `domain`. This skill does **not** restate `--help` output — it captures only what `--help` cannot tell you.
+For command lists, flags, and usage, run `enter-cli <cmd> --help` directly. Top-level groups: `login`, `logout`, `whoami`, `config`, `workspace|ws`, `project|proj`, `thread`, `domain`, `models`. This skill does **not** restate `--help` output — it captures only what `--help` cannot tell you.
 
 ## Decision Rules
 
+- Default to `--plan-mode` on `proj create`. Skip it only when the task is trivially one-shot (e.g. an empty project, a single tiny tweak).
 - Always verify the relevant URL after each turn — pre-publish via `preview_url` (prefer `-turn<N>` over `-latest`), post-publish via `publish_url`.
 - Prefer `publish_url` over `preview_url` when both exist.
 - If only `preview_url` exists, label it clearly as preview.

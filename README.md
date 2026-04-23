@@ -4,164 +4,87 @@
 
 > Build and ship full-stack web apps with AI — powered by [enter.pro](https://enter.pro)
 
-This skill teaches any AI agent how to operate **[enter.pro](https://enter.pro)** — an AI-native platform where you describe what you want to build and an agent writes, deploys, and publishes the entire app for you.
+A skill that teaches your AI agent how to drive **[enter.pro](https://enter.pro)**. You don't run these commands — your agent does.
 
 Works with any agent that supports skills: [OpenClaw](https://openclaw.ai), [Claude Code](https://claude.ai/code), [Codex](https://platform.openai.com/docs/guides/codex), [QClaw](https://qclaw.run), and more.
 
 ---
 
-## What is enter.pro?
+## What this enables your agent to do
 
-**[enter.pro](https://enter.pro)** is a platform that lets AI agents build complete web applications — frontend, backend, database, auth, payments, and deployment — all from a single chat prompt.
+- Spin up a full-stack web app from a natural-language prompt
+- Plan first, then build — review the agent's plan before any code is written
+- Iterate on the app via chat (add features, fix bugs, change copy)
+- Verify the live preview after each change and catch runtime errors automatically
+- Publish to a real production URL on enter.pro
+- Wire up integrations: Supabase, Stripe, custom domains, MCP servers
+- Manage workspaces, members, credits, and project visibility
 
-- **No manual setup** — AI handles the entire stack
-- **Real deployments** — apps are live on a real URL, not just a preview
-- **Integrations built-in** — Supabase, Stripe, custom domains, MCP servers
-- **Multiplayer** — team workspaces, shared projects, role-based access
-
----
-
-## What This Skill Does
-
-Gives your agent full control over enter.pro via `enter-cli`:
-
-| Capability | Commands |
-|-----------|----------|
-| Build & iterate | `thread chat`, `thread messages --follow` |
-| Handle build gates | `thread actions --pending`, `thread approve` |
-| Publish & share | `proj publish`, `proj urls` |
-| Edit code directly | `proj edit-file`, `proj run-script` |
-| Manage integrations | `proj mcp`, `proj model`, `proj skills` |
-| Workspaces & teams | `ws members`, `ws credits` |
-| Custom domains | `domain add`, `domain refresh` |
-| Agent skills | `skill install`, `skill list` |
+All from natural language. The agent picks the right CLI commands; you just describe what you want.
 
 ---
 
-## Quick Start (AI Agent)
+## How it works
 
-> The following steps are for AI Agents. Step 2 requires the user to complete login in a browser.
+Your agent uses `enter-cli` — a thin wrapper over enter.pro's API — to do everything you'd otherwise do in the web UI. The skill (`SKILL.md`) tells the agent which commands to use, in what order, and how to handle approval gates and errors.
 
-**Step 1 — Install enter-cli**
+---
+
+## Install (one-time setup)
+
+You need to do these three steps once. After that, your agent takes over.
+
+**1. Install the CLI**
 
 ```bash
 npm install -g @kntech/enter-cli
 ```
 
-**Step 2 — Login**
-
-> Run this command, then extract the authorization URL and send it to the user. The command completes automatically after the user finishes in the browser.
+**2. Log in**
 
 ```bash
 enter-cli login
 ```
 
-**Step 3 — Install this skill**
+This opens a browser for OAuth. Your credentials are stored locally so the agent can act on your behalf.
 
-```bash
-# Claude Code
-git clone https://github.com/enter-pro/CLI ~/.claude/skills/enter
+**3. Add the skill to your agent**
 
-# Other agents: copy SKILL.md into your agent's system prompt or rules file
-```
-
-**Step 4 — Verify**
-
-```bash
-enter-cli whoami
-```
-
-Once verified, your agent can: create and deploy full-stack web apps, iterate via chat, publish to production, manage integrations (Supabase, Stripe, MCP), edit source files, and handle the full project lifecycle — all from natural language.
+See [Add the skill to your agent](#add-the-skill-to-your-agent) below.
 
 ---
 
-## Install (Human)
+## Add the skill to your agent
 
-```bash
-npm install -g @kntech/enter-cli
-enter-cli login        # OAuth — opens browser
-enter-cli whoami       # verify auth
-```
+Paste this into your agent (Claude Code, Codex, Cursor, OpenClaw, QClaw, …) and let it install the skill itself:
 
----
+> Install the enter-cli skill from https://github.com/enter-pro/CLI into the appropriate skills/rules location for this environment.
 
-## Add to Your Agent
-
-### Claude Code
-```bash
-git clone https://github.com/enter-pro/CLI ~/.claude/skills/enter
-```
-
-### Cursor / Windsurf / Cline / Continue
-Copy the `SKILL.md` content into your agent's system prompt or rules file, or follow your agent's skill/rule import instructions.
-
-### agentskills.io
-Available at [agentskills.io](https://agentskills.io) — search for `enter`.
+The agent will figure out where skills live for its runtime and clone or copy the files in.
 
 ---
 
-## Quick Start
+## Try it
 
-```bash
-# 1. Get your workspace
-WS_ID=$(enter-cli ws list -o json | jq -r '.[0].id')
+Once installed, just ask your agent things like:
 
-# 2. Create a project and wait for the first build
-PROJ=$(enter-cli proj create $WS_ID --name "My App" --prompt "Build a SaaS landing page with waitlist" --wait -o json)
-PROJ_ID=$(echo $PROJ | jq -r '.project_id')
+- "Build me a 2048 game and publish it"
+- "Add Supabase auth to my project `abc123`"
+- "Show me the latest preview URL for my project and check for errors"
+- "Iterate on my landing page — add a pricing section in dark mode"
 
-# 3. Get the shareable URL
-enter-cli proj urls $PROJ_ID -o json | jq -r '.recommended_share_url'
-
-# 4. Iterate
-enter-cli thread chat $PROJ_ID -m "Add dark mode and a pricing section"
-enter-cli thread messages $PROJ_ID --follow
-
-# 5. Publish
-enter-cli proj publish $PROJ_ID
-```
+Your agent handles the rest: creating the project, reviewing the plan with you, building, verifying the preview, approving gates, and publishing.
 
 ---
 
-## Handling Build Gates
+## For developers / curious humans
 
-Some features require approval before the agent proceeds (Supabase setup, Stripe keys, user questions). Use:
+If you want to invoke `enter-cli` directly instead of letting an agent drive it:
 
-```bash
-enter-cli thread actions $PROJ_ID --pending -o json
-
-# Approve by type:
-enter-cli thread approve $PROJ_ID <action_id>                                                    # supabase_enable, confirm_skill, etc.
-enter-cli thread approve $PROJ_ID <action_id> --secret-name DB_URL --secret-value "postgres://…" # supabase_add_secret
-enter-cli thread approve $PROJ_ID <action_id> --secret-name STRIPE_SECRET_KEY --secret-value "sk_…" # stripe_enable
-enter-cli thread approve $PROJ_ID <action_id> --skip-answers                                    # ask_user_question
-```
-
----
-
-## Long Messages
-
-For long prompts with special characters, write to a file first:
-
-```bash
-cat > /tmp/prompt.txt << 'EOF'
-Build a multiplayer drawing game with:
-- PeerJS for real-time sync
-- 200+ word bank in Chinese
-...
-EOF
-enter-cli thread chat $PROJ_ID --file /tmp/prompt.txt
-```
-
----
-
-## Full Command Reference
-
-For the full list of commands and flags, run `enter-cli <cmd> --help`.
-
-See [references/shapes.md](references/shapes.md) for verified JSON output shapes.
-
-See [references/quirks.md](references/quirks.md) for known issues and how to handle them.
+- Run `enter-cli --help` for the full command tree
+- See [SKILL.md](SKILL.md) for the canonical workflow
+- See [references/shapes.md](references/shapes.md) for verified JSON output shapes
+- See [references/quirks.md](references/quirks.md) for known edge cases
 
 ---
 
