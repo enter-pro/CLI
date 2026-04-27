@@ -37,7 +37,7 @@ You need to do these three steps once. After that, your agent takes over.
 **1. Install the CLI**
 
 ```bash
-npm install -g @kntech/enter-cli
+npm install -g @enter-pro/enter-cli
 ```
 
 **2. Authenticate**
@@ -91,7 +91,7 @@ If you want to invoke `enter-cli` directly instead of letting an agent drive it:
 ## Links
 
 - **Platform**: [enter.pro](https://enter.pro)
-- **CLI package**: [@kntech/enter-cli](https://www.npmjs.com/package/@kntech/enter-cli)
+- **CLI package**: [@enter-pro/enter-cli](https://www.npmjs.com/package/@enter-pro/enter-cli)
 - **Skill registry**: [agentskills.io](https://agentskills.io)
 
 ---
