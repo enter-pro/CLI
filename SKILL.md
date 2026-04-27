@@ -31,6 +31,14 @@ enter-cli ws list -o json
 
 Do not continue until `whoami` succeeds.
 
+If `whoami` fails with an authentication error, ask the user to open [enter.pro](https://enter.pro), go to **Workspace Settings**, and copy their API key. Once the user provides the key, run:
+
+```bash
+enter-cli login --api-key <key>
+```
+
+Then retry `whoami`.
+
 ## Typical Workflow
 
 ```bash
