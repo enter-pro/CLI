@@ -9,7 +9,7 @@ description: >
 metadata:
   install:
     - method: npm
-      command: npm install -g @kntech/enter-cli
+      command: npm install -g @enter-pro/enter-cli
   bin: enter-cli
 ---
 
