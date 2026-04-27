@@ -40,13 +40,13 @@ You need to do these three steps once. After that, your agent takes over.
 npm install -g @kntech/enter-cli
 ```
 
-**2. Log in**
+**2. Authenticate**
+
+Get your API key from **Workspace Settings** on [enter.pro](https://enter.pro), then run:
 
 ```bash
-enter-cli login
+enter-cli login --api-key <your-api-key>
 ```
-
-This opens a browser for OAuth. Your credentials are stored locally so the agent can act on your behalf.
 
 **3. Add the skill to your agent**
 
